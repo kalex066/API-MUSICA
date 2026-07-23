@@ -1,0 +1,6 @@
+musica-server/node_modules/
+musica-server/.env
+musica-cliente/node_modules/
+musica-cliente/dist/
+musica-cliente/.env
+.DS_Store
