@@ -1,0 +1,16 @@
+.playlist-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.playlist-item a {
+    color: var(--color-link);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.playlist-item a:hover {
+    color: var(--color-link-hover);
+    text-decoration: underline;
+}

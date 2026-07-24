@@ -1,0 +1,38 @@
+.app-header {
+    background-color: var(--color-header-bg);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.app-nav {
+    display: flex;
+    gap: 32px;
+}
+
+.app-nav a {
+    color: var(--color-header-text);
+    font-weight: 600;
+    font-size: 2rem;
+    transition: opacity 0.15s ease;
+}
+
+.app-nav a:hover {
+    opacity: 0.75;
+}
+
+
+@media (max-width: 640px) {
+    .app-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .app-nav {
+        gap: 16px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}

@@ -1,0 +1,44 @@
+.page-container p {
+    font-size: 1.05rem;
+    margin: 8px 0;
+}
+
+.add-to-playlist {
+    margin-top: 32px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.add-to-playlist select {
+    padding: 10px 14px;
+    font-size: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    min-width: 220px;
+}
+
+.add-to-playlist button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: var(--color-btn-primary);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+    }
+
+.add-to-playlist button:hover {
+    opacity: 0.9;
+    }
+
+.mensaje-info {
+    margin-top: 16px;
+    color: var(--color-muted);
+    font-style: italic;
+}
