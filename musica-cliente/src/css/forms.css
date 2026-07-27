@@ -154,3 +154,51 @@ form button[type='submit']:disabled {
 form button[type='submit']:disabled:hover {
     background-color: #a8d5b5;
 }
+
+/*Formularios de autenticación (Login / Registro)*/
+
+.auth-container {
+    max-width: 420px;
+    margin: 60px auto;
+    padding: 32px;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+}
+
+.auth-container h2 {
+    margin-top: 0;
+    margin-bottom: 24px;
+    font-size: 1.6rem;
+    text-align: center;
+}
+
+.auth-container form {
+    gap: 4px;
+}
+
+/* Extiende el estilo de input existente a email y password */
+form input[type='email'],
+form input[type='password'] {
+    padding: 12px 14px;
+    font-size: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    margin-bottom: 10px;
+}
+
+.auth-container p {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.auth-container p a {
+    color: var(--color-link);
+    font-weight: 600;
+}
+
+
+

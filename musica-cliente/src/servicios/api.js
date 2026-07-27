@@ -4,6 +4,31 @@ const api = axios.create({
   baseURL: 'http://localhost:8080/api',
 });
 
+// Interceptor de REQUEST: agrega el token a cada petición saliente
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token_usuario');
+  if (token) {
+    config.headers['token_usuario'] = token;
+  }
+  return config;
+});
+
+// Interceptor de RESPONSE: si el token es inválido/expiró (401), redirige al login
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token_usuario');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Autenticación
+export const registrarUsuario = (datos) => api.post('/registro', datos);
+export const iniciarSesion = (datos) => api.post('/login', datos);
+
 // Canciones
 export const obtenerCanciones = () => api.get('/canciones');
 export const obtenerCancionPorId = (id) => api.get(`/canciones/${id}`);

@@ -7,26 +7,98 @@ import EditarCancion from './paginas/editarCancion';
 import Playlists from './paginas/listas';
 import PlaylistDetalle from './paginas/listaDetalle';
 import EditarPlaylist from './paginas/editarLista';
+import Registro from './componentes/Registro';
+import Login from './componentes/Login';
+import RutaProtegida from './componentes/RutaProtegida';
 
 const App = () => {
   return (
     <Router>
       <Header />
       <Routes>
-        
-        <Route path="/" element={<Canciones />} />
-        <Route path="/canciones" element={<Canciones />} />
-        <Route path="/canciones/new" element={<AgregarCancion />} />
-        <Route path="/canciones/:id" element={<CancionDetalle />} />
-        <Route path="/canciones/:id/edit" element={<EditarCancion />} /> 
-        
-        <Route path="/listas" element={<Playlists />} />
-        <Route path="/listas/:id" element={<PlaylistDetalle />} />
-        <Route path="/listas/new" element={<EditarPlaylist />} />
-        <Route path="/listas/:id/edit" element={<EditarPlaylist />} />
+        {/* Rutas públicas - sin protección */}
+        <Route path="/registro" element={<Registro />} />
+        <Route path="/login" element={<Login />} />
+
+        {/* Rutas protegidas - requieren token válido */}
+        <Route
+          path="/"
+          element={
+            <RutaProtegida>
+              <Canciones />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/canciones"
+          element={
+            <RutaProtegida>
+              <Canciones />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/canciones/new"
+          element={
+            <RutaProtegida>
+              <AgregarCancion />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/canciones/:id"
+          element={
+            <RutaProtegida>
+              <CancionDetalle />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/canciones/:id/edit"
+          element={
+            <RutaProtegida>
+              <EditarCancion />
+            </RutaProtegida>
+          }
+        />
+
+        <Route
+          path="/listas"
+          element={
+            <RutaProtegida>
+              <Playlists />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/listas/:id"
+          element={
+            <RutaProtegida>
+              <PlaylistDetalle />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/listas/new"
+          element={
+            <RutaProtegida>
+              <EditarPlaylist />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/listas/:id/edit"
+          element={
+            <RutaProtegida>
+              <EditarPlaylist />
+            </RutaProtegida>
+          }
+        />
       </Routes>
     </Router>
   );
 };
 
 export default App;
+
+

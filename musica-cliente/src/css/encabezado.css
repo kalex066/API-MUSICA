@@ -3,26 +3,46 @@
     padding: 16px 32px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     position: relative;
 }
 
-.app-nav {
+.app-nav-links {
     display: flex;
     gap: 32px;
 }
 
-.app-nav a {
+.app-nav-links a {
     color: var(--color-header-text);
     font-weight: 600;
     font-size: 2rem;
     transition: opacity 0.15s ease;
 }
 
-.app-nav a:hover {
+.app-nav-links a:hover {
     opacity: 0.75;
 }
 
+/* Botón/link de Iniciar sesión y Cerrar sesión */
+.btn-sesion {
+    color: var(--color-header-text);
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    padding: 8px 20px;
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 1.3rem;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-block;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.app-nav .btn-sesion:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    opacity: 1;
+    transform: translateY(-1px);
+}
 
 @media (max-width: 640px) {
     .app-header {
