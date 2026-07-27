@@ -4,8 +4,8 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import cancionRouter from './routes/cancion.router.js';
 import rutasListas from './routes/listaCanciones.router.js';
-import { notFoundHandler, globalErrorHandler } from './middlewares/errorHandler.js';
-import validationErrorHandler from './middlewares/validationErrorHandler.js';
+import rutaNoEncontrada from './middleware/rutaNoEncontrada.js';
+import manejadorErrores from './middleware/manejadorErrores.js';
 
 dotenv.config();
 
@@ -21,9 +21,8 @@ app.use('/api', cancionRouter);
 app.use('/api', rutasListas); 
 
 // Middlewares de errores
-app.use(notFoundHandler);
-app.use(validationErrorHandler);
-app.use(globalErrorHandler);
+app.use(rutaNoEncontrada);
+app.use(manejadorErrores);
 
 // Conexión a MongoDB con Mongoose
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/musica')
@@ -37,3 +36,4 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/musica')
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
+

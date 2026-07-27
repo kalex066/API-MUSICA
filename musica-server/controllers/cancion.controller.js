@@ -47,7 +47,7 @@ const obtenerCancionPorId = async (req, res, next) => {
 const actualizarCancion = async (req, res, next) => {
     const opciones = { new: true, runValidators: true };
     try {
-        const cancionActualizada = await Cancion.findByIdAndUpdate(req.params.id, req.body, opciones);
+        const cancionActualizada = await Cancion.findByIdAndUpdate(req.params.id, req.body,opciones);
         if (!cancionActualizada) {
             const error = new Error('Lo siento, no se encontró la canción');
             error.statusCode = 404;
