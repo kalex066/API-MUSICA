@@ -2,8 +2,11 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import cancionRouter from './routes/cancion.router.js';
 import rutasListas from './routes/listaCanciones.router.js';
+import usuarioRouter from './routes/usuario.router.js';
+import autenticarJWT from './middlewares/jwt.config.js';
 import rutaNoEncontrada from './middlewares/rutaNoEncontrada.js';
 import manejadorErrores from './middlewares/manejadorErrores.js';
 
@@ -13,14 +16,18 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Middlewares globales base
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json());
+app.use(cookieParser());
 
-// Rutas de la API
-app.use('/api', cancionRouter);
-app.use('/api', rutasListas); 
+// Rutas públicas de autenticación (Login y Registro)
+app.use('/api', usuarioRouter);
 
-// Middlewares de errores
+// Rutas protegidas: Se aplica middleware autenticarJWT para exigir token en canciones y listas
+app.use('/api', autenticarJWT, cancionRouter);
+app.use('/api', autenticarJWT, rutasListas);
+
+//Errores
 app.use(rutaNoEncontrada);
 app.use(manejadorErrores);
 
