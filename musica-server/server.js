@@ -4,8 +4,8 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import cancionRouter from './routes/cancion.router.js';
 import rutasListas from './routes/listaCanciones.router.js';
-import rutaNoEncontrada from './middleware/rutaNoEncontrada.js';
-import manejadorErrores from './middleware/manejadorErrores.js';
+import rutaNoEncontrada from './middlewares/rutaNoEncontrada.js';
+import manejadorErrores from './middlewares/manejadorErrores.js';
 
 dotenv.config();
 

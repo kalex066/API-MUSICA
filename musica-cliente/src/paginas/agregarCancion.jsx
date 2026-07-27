@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { crearCancion } from '../servicios/api';
 
 const AgregarCancion = () => {
-
     const [cancion, setCancion] = useState({
         titulo: '',
         artista: '',
@@ -12,40 +11,80 @@ const AgregarCancion = () => {
         album: ''
     });
 
-    const [errores, setErrores] = useState({});
+    // Errores de validación del formulario en tiempo real
+    const [erroresFormulario, setErroresFormulario] = useState({
+        titulo: 'El título es obligatorio',
+        artista: 'El nombre del artista es obligatorio',
+        anioLanzamiento: 'El año de lanzamiento es obligatorio',
+        genero: 'El género es obligatorio',
+    });
+
+    //Errores que puedan venir directamente del backend
+    const [erroresServidor, setErroresServidor] = useState({});
+    
     const navigate = useNavigate();
 
-    //actualizar el objeto de estado
+    //Validaciones en tiempo real por cada campo
+    const validarCampo = (name, value) => {
+        let mensajeError = '';
+
+        switch (name) {
+            case 'titulo':
+                if (!value.trim()) {
+                    mensajeError = 'El título es obligatorio';
+                } else if (value.trim().length < 5) {
+                    mensajeError = 'El título debe tener al menos 5 caracteres';
+                }
+                break;
+            case 'artista':
+                if (!value.trim()) {
+                    mensajeError = 'El nombre del artista es obligatorio';
+                } else if (value.trim().length < 5) {
+                    mensajeError = 'El artista debe tener al menos 5 caracteres';
+                }
+                break;
+            case 'anioLanzamiento':
+                if (!String(value).trim()) {
+                    mensajeError = 'El año de lanzamiento es obligatorio';
+                } else if (Number.isNaN(Number(value))) {
+                    mensajeError = 'El año debe ser un número válido';
+                } else if (!/^\d{4}$/.test(String(value).trim())) {
+                    mensajeError = 'El año de lanzamiento debe tener 4 dígitos';
+                }
+                break;
+            case 'genero':
+                if (!value.trim()) {
+                    mensajeError = 'El género es obligatorio';
+                }
+                break;
+            default:
+                break;
+        }
+
+        return mensajeError;
+    };
+
+    // Actualizar el estado y validar en tiempo real
     const handleChange = (e) => {
         const { name, value } = e.target;
         setCancion(prev => ({ ...prev, [name]: value }));
+
+        // Si el campo tiene validación, se actualiza
+        if (name in erroresFormulario) {
+            const errorValidacion = validarCampo(name, value);
+            setErroresFormulario(prev => ({ ...prev, [name]: errorValidacion }));
+        }
     };
 
-    //Validaciones
-    const validar = () => {
-        const nuevosErrores = {};
-
-        if (!cancion.titulo.trim()) nuevosErrores.titulo = 'El título es obligatorio';
-        if (!cancion.artista.trim()) nuevosErrores.artista = 'El nombre del artista es obligatorio';
-        if (!String(cancion.anioLanzamiento).trim()) {
-            nuevosErrores.anioLanzamiento = 'El año de lanzamiento es obligatorio';
-        } else if (Number.isNaN(Number(cancion.anioLanzamiento))) {
-            nuevosErrores.anioLanzamiento = 'El año debe ser un número válido';
-        }
-        if (!cancion.genero.trim()) nuevosErrores.genero = 'El género es obligatorio';
-
-        return nuevosErrores;
+    // El formulario es válido cuando todos los mensajes de error del formulario están vacíos
+    const validarFormularioCompleto = () => {
+        return Object.values(erroresFormulario).every((valor) => valor === '');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const erroresEncontrados = validar();
-        setErrores(erroresEncontrados);
-
-        if (Object.keys(erroresEncontrados).length > 0) {
-            return;
-        }
+        if (!validarFormularioCompleto()) return;
 
         const nuevaCancion = { 
             ...cancion, 
@@ -57,7 +96,12 @@ const AgregarCancion = () => {
             navigate('/canciones');
         } catch (error) {
             console.error('Error al crear la canción:', error);
-            setErrores({ general: 'No se pudo crear la canción. Intenta de nuevo.' });
+            const erroresBackend = error?.response?.data?.errores;
+            if (erroresBackend) {
+                setErroresServidor(erroresBackend);
+            } else {
+                setErroresServidor({ general: error?.response?.data?.mensaje || 'No se pudo crear la canción. Intenta de nuevo.' });
+            }
         }
     };
 
@@ -65,7 +109,7 @@ const AgregarCancion = () => {
         <div className="page-container">
             <h1>Nueva Canción</h1>
 
-            {errores.general && <p className="error-general">{errores.general}</p>}
+            {erroresServidor.general && <p className="error-general">{erroresServidor.general}</p>}
 
             <form onSubmit={handleSubmit} noValidate>
                 <label>Título:</label>
@@ -75,7 +119,8 @@ const AgregarCancion = () => {
                     value={cancion.titulo}
                     onChange={handleChange}
                 />
-                {errores.titulo && <span className="error-mensaje">{errores.titulo}</span>}
+                {erroresFormulario.titulo && <span className="error-mensaje">{erroresFormulario.titulo}</span>}
+                {erroresServidor.titulo && <span className="error-mensaje">{erroresServidor.titulo}</span>}
 
                 <label>Artista:</label>
                 <input
@@ -84,7 +129,8 @@ const AgregarCancion = () => {
                     value={cancion.artista}
                     onChange={handleChange}
                 />
-                {errores.artista && <span className="error-mensaje">{errores.artista}</span>}
+                {erroresFormulario.artista && <span className="error-mensaje">{erroresFormulario.artista}</span>}
+                {erroresServidor.artista && <span className="error-mensaje">{erroresServidor.artista}</span>}
 
                 <label>Año de Lanzamiento:</label>
                 <input
@@ -92,8 +138,10 @@ const AgregarCancion = () => {
                     name="anioLanzamiento"
                     value={cancion.anioLanzamiento}
                     onChange={handleChange}
+                    placeholder="Ej: 1991"
                 />
-                {errores.anioLanzamiento && <span className="error-mensaje">{errores.anioLanzamiento}</span>}
+                {erroresFormulario.anioLanzamiento && <span className="error-mensaje">{erroresFormulario.anioLanzamiento}</span>}
+                {erroresServidor.anioLanzamiento && <span className="error-mensaje">{erroresServidor.anioLanzamiento}</span>}
 
                 <label>Género:</label>
                 <input
@@ -102,7 +150,8 @@ const AgregarCancion = () => {
                     value={cancion.genero}
                     onChange={handleChange}
                 />
-                {errores.genero && <span className="error-mensaje">{errores.genero}</span>}
+                {erroresFormulario.genero && <span className="error-mensaje">{erroresFormulario.genero}</span>}
+                {erroresServidor.genero && <span className="error-mensaje">{erroresServidor.genero}</span>}
 
                 <label>Álbum:</label>
                 <input
@@ -112,7 +161,7 @@ const AgregarCancion = () => {
                     onChange={handleChange}
                 />
 
-                <button type="submit">Agregar Canción</button>
+                <button type="submit" disabled={!validarFormularioCompleto()}>Agregar Canción</button>
             </form>
         </div>
     );

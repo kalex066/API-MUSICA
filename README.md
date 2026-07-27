@@ -24,14 +24,12 @@ Aplicación web para explorar canciones, crear listas de reproducción (playlist
 
 ## ✨ Características
 
-- Ver todas las canciones de la biblioteca, con búsqueda por título, artista o género.
-- Ver el detalle de una canción individual.
-- Agregar nuevas canciones mediante un formulario.
-- Crear y editar listas de reproducción, seleccionando canciones desde un checklist.
-- Ver el detalle de una playlist con sus canciones asociadas.
-- Navegación fluida entre vistas mediante React Router, con un header global persistente.
-- Soporte de variables CSS para modo claro / oscuro.
-
+- Ver todas las canciones de la biblioteca.
+- Agregar nuevas canciones mediante un formulario con validaciones en tiempo real.
+- Editar canciones existentes con precarga de datos.
+- Crear y editar listas de reproducción, seleccionando canciones mediante un checklist.
+- Manejo centralizado de errores con respuestas claras y amigables en español.
+- Navegación fluida mediante React Router.
 ---
 
 ## 🛠️ Tecnologías
@@ -57,37 +55,43 @@ music-app/
 │   ├── config/              # Conexión a la base de datos
 │   ├── controllers/
 │   │   ├── cancion.controller.js
-│   │   └── lista.controller.js
-│   ├── models/
-│   │   ├── Cancion.js
-│   │   └── Lista.js
+│   │   └── listaCanciones.controller.js
+    ├── middlewares/
+│   │   ├── manejadorErrores.js
+│   │   └── rutaNoEncontrada.js
+│   ├── modelos/
+│   │   ├── cancion.model.js
+│   │   └── listaCanciones.model.js
 │   ├── routes/
-│   │   ├── canciones.routes.js
-│   │   └── listas.routes.js
+│   │   ├── cancion.router.js
+│   │   └── listaCanciones.router.js
 │   ├── .env
 │   ├── server.js
 │   └── package.json
 │
-├── client/
+├── musica-cliente/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── Header.jsx
-│   │   │   ├── Header.css
-│   │   │   ├── SongItem.jsx
-│   │   │   └── PlaylistItem.jsx
-│   │   ├── pages/
-│   │   │   ├── Songs.jsx
-│   │   │   ├── Songs.css
-│   │   │   ├── SongDetail.jsx
-│   │   │   ├── SongDetail.css
-│   │   │   ├── AddSong.jsx
-│   │   │   ├── Playlists.jsx
-│   │   │   ├── Playlists.css
-│   │   │   ├── PlaylistDetail.jsx
-│   │   │   ├── PlaylistEditor.jsx
-│   │   │   └── Forms.css
+│   │   │   ├── encabezado.jsx
+│   │   │   ├── CancionItem.jsx
+│   │   │   └── ListaItem.jsx
+        ├── css/
+│   │   │   ├── canciones.css
+│   │   │   ├── detalleCancion.css
+│   │   │   └── encabezado.css
+            ├── forms.css
+│   │   │   └── playlist.css
+│   │   ├── paginas/
+│   │   │   ├── agregarCancion.jsx
+│   │   │   ├── cancionDetalle.jsx
+│   │   │   ├── canciones.jsx
+│   │   │   ├── editarCancion.jsx
+│   │   │   ├── editarLista.jsx
+│   │   │   ├── listaDetalle.jsx
+│   │   │   ├── listas.jsx
 │   │   ├── services/
 │   │   │   └── api.js
+│   │   ├── App.css
 │   │   ├── App.jsx
 │   │   ├── main.jsx
 │   │   └── index.css
@@ -96,10 +100,6 @@ music-app/
 │
 └── README.md
 ```
-
-> ⚠️ **Importante:** los nombres de archivos e imports deben coincidir EXACTAMENTE (mayúsculas/minúsculas incluidas). Si usas carpetas o nombres en español (`componentes/`, `paginas/`), asegúrate de que todos los `import` en el proyecto usen esa misma convención — mezclar `componentes/encabezado.css` con archivos guardados como `components/Header.css` es la causa más común del error `Failed to resolve import`.
-
----
 
 ## ✅ Requisitos previos
 
@@ -134,11 +134,9 @@ npm install
 Crea un archivo `.env` dentro de la carpeta `server/` con el siguiente contenido:
 
 ```env
-PUERTO=3000
+PUERTO=8080
 MONGODB_URI=mongodb+srv://usuario:<password>@cluster.mongodb.net/musicapp?retryWrites=true&w=majority
 ```
-
-> ⚠️ No subas este archivo al repositorio. Asegúrate de que `.env` esté incluido en `.gitignore`.
 
 ---
 
@@ -149,16 +147,16 @@ Se necesitan **dos terminales** corriendo en simultáneo (una para el backend y 
 **Terminal 1 — Backend**
 
 ```bash
-cd server
+cd music-server
 npm run dev
 ```
 
-El servidor quedará disponible en `http://localhost:3000`.
+El servidor quedará disponible en `http://localhost:8080`.
 
 **Terminal 2 — Frontend**
 
 ```bash
-cd client
+cd music-cliente
 npm run dev
 ```
 
@@ -172,41 +170,21 @@ El cliente quedará disponible en `http://localhost:5173`. Las peticiones a `/ca
 
 | Método | Endpoint | Descripción |
 |---|---|---|
-| GET | `/canciones` | Obtiene todas las canciones |
-| GET | `/canciones/:id` | Obtiene una canción por id |
-| POST | `/canciones` | Crea una nueva canción |
-| PUT | `/canciones/:id` | Actualiza una canción existente |
-| DELETE | `/canciones/:id` | Elimina una canción |
-
-**Body de ejemplo (POST/PUT `/canciones`):**
-
-```json
-{
-  "titulo": "Enter Sandman",
-  "artista": "Metallica",
-  "genero": "Rock",
-  "anioLanzamiento": 1991
-}
-```
+| GET | `/api/canciones` | Obtiene todas las canciones |
+| GET | `/api/canciones/:id` | Obtiene una canción por id |
+| POST | `/api/canciones` | Crea una nueva canción |
+| PUT | `/api/canciones/:id` | Actualiza una canción existente |
+| DELETE | `/api/canciones/:id` | Elimina una canción |
 
 ### Listas (playlists)
 
 | Método | Endpoint | Descripción |
 |---|---|---|
-| GET | `/listas` | Obtiene todas las playlists |
-| GET | `/listas/:id` | Obtiene una playlist por id (con canciones populadas) |
-| POST | `/listas` | Crea una nueva playlist |
-| PUT | `/listas/:id` | Actualiza nombre y/o canciones de una playlist |
-| DELETE | `/listas/:id` | Elimina una playlist |
-
-**Body de ejemplo (POST/PUT `/listas`):**
-
-```json
-{
-  "nombre": "Guns",
-  "canciones": ["64f1a2b3c4d5e6f7a8b9c0d1", "64f1a2b3c4d5e6f7a8b9c0d2"]
-}
-```
+| GET | `/api/listas` | Obtiene todas las playlists |
+| GET | `/api/listas/:id` | Obtiene una playlist por id (con canciones populadas) |
+| POST | `/api/listas` | Crea una nueva playlist |
+| PUT | `/api/listas/:id` | Actualiza nombre y/o canciones de una playlist |
+| DELETE | `/api/listas/:id` | Elimina una playlist |
 
 ---
 
@@ -214,13 +192,13 @@ El cliente quedará disponible en `http://localhost:5173`. Las peticiones a `/ca
 
 | Ruta | Componente | Descripción |
 |---|---|---|
-| `/` , `/songs` | `Songs` | Biblioteca de música completa |
-| `/songs/:id` | `SongDetail` | Detalle de una canción |
-| `/songs/new` | `AddSong` | Formulario para agregar canción |
-| `/playlists` | `Playlists` | Listado de playlists |
-| `/playlists/:id` | `PlaylistDetail` | Detalle de una playlist |
-| `/playlists/new` | `PlaylistEditor` | Crear nueva playlist |
-| `/playlists/:id/edit` | `PlaylistEditor` | Editar playlist existente |
+| `/` , `/canciones` | `canciones` | Biblioteca de música completa |
+| `/canciones/:id` | `DetalleCancion` | Detalle de una canción |
+| `/canciones/nuevo` | `AgregarCancion` | Formulario para agregar canción |
+| `/lista` | `Playlists` | Listado de playlists |
+| `/lista/:id` | `PlaylistDetalle` | Detalle de una playlist |
+| `/lista/nueva` | `EditarPlaylist` | Crear nueva playlist |
+| `/lista/:id/editar` | `EditarPlaylist` | Editar playlist existente |
 
 ---
 
@@ -232,8 +210,9 @@ El cliente quedará disponible en `http://localhost:5173`. Las peticiones a `/ca
 |---|---|---|
 | `titulo` | String | Nombre de la canción |
 | `artista` | String | Nombre del artista |
-| `genero` | String | Género musical |
 | `anioLanzamiento` | Number | Año de lanzamiento |
+| `genero` | String | Género musical |
+| `album` | String | Nombre del album al que pertenece la cancion |
 
 ### Lista
 
@@ -244,49 +223,7 @@ El cliente quedará disponible en `http://localhost:5173`. Las peticiones a `/ca
 
 ---
 
-## 🎨 Estilos (CSS)
-
-| Archivo | Contenido |
-|---|---|
-| `src/index.css` | Variables de color (modo claro/oscuro), reseteo global, contenedor de página |
-| `src/components/Header.css` | Header oscuro, navegación, botón de tema |
-| `src/pages/Songs.css` | Buscador y lista de canciones |
-| `src/pages/Playlists.css` | Lista de playlists |
-| `src/pages/SongDetail.css` | Detalle de canción y selector para agregar a playlist |
-| `src/pages/Forms.css` | Formularios compartidos (Add Song / Playlist Editor) y checklist de canciones |
-
-Import recomendado (una sola vez, en `main.jsx`):
-
-```jsx
-import './index.css';
-import './components/Header.css';
-import './pages/Songs.css';
-import './pages/Playlists.css';
-import './pages/SongDetail.css';
-import './pages/Forms.css';
-```
-
-El modo oscuro se activa agregando el atributo `data-theme="dark"` a `<html>` o `<body>` (pendiente de conectar con un `useState` en `Header.jsx`).
+Autor: Karen Herrera
+Realizado con fines educativos
 
 ---
-
-## 🩹 Solución de problemas comunes
-
-**`Failed to resolve import ".../archivo.css" from "src/main.jsx"`**
-Significa que la ruta del import no coincide con la ubicación/nombre real del archivo (Vite distingue mayúsculas y minúsculas). Verifica: 1) que el archivo exista, 2) que el nombre de carpeta y archivo estén escritos exactamente igual en el `import`, 3) que no estés mezclando nombres en español e inglés entre carpetas.
-
-**CORS bloqueado en el navegador**
-Confirma que `cors()` esté configurado en `server.js` y que el proxy de `vite.config.js` apunte al puerto correcto del backend (3000 en este proyecto).
-
-**Una playlist no muestra canciones**
-Verifica que el endpoint `GET /listas/:id` esté haciendo `.populate('canciones')` en el controlador; de lo contrario solo devuelve ids.
-
----
-
-## 📝 Notas y decisiones de diseño
-
-- Los endpoints y campos están en español para mantener consistencia con las rutas de canciones ya definidas en el backend original.
-- `GET /listas/:id` hace `populate('canciones')` para devolver los datos completos de cada canción; `GET /listas` devuelve solo los ids, útil para listados livianos.
-- La búsqueda de canciones y playlists se realiza en el cliente (filtrado en memoria), sin llamadas adicionales a la API por cada tecla.
-- El header de navegación vive fuera de las `Routes` en `App.jsx`, por lo que es visible en todas las vistas.
-- Antes de la entrega final: eliminar `console.log` de depuración, verificar que `.env` no esté versionado, y confirmar que todos los formularios validan campos requeridos.
