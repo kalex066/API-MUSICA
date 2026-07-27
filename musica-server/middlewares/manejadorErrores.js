@@ -1,29 +1,28 @@
-const extraerErrores = (error) => {
-    const errores = {};
-    Object.keys(error.errors).forEach((campo) => {
-        errores[campo] = error.errors[campo].message;
-    });
-    return errores;
-};
-
 const manejadorErrores = (err, req, res, next) => {
-  // Log en el servidor para depuración (nunca se envía al cliente)
-    console.error(`[${err.name}] ${err.message}`);
+    console.error(err.stack);
 
-  // Errores de validación de Mongoose (required, minlength, maxlength, validadores personalizados)
     if (err.name === 'ValidationError') {
         return res.status(400).json({
-        mensaje: 'Errores de validación',
-        errores: extraerErrores(err),
+            mensaje: 'Errores de validación',
+            errores: extraerErrores(err),
         });
     }
 
-    // ID con formato inválido 
     if (err.name === 'CastError') {
         return res.status(400).json({ mensaje: 'El identificador proporcionado no es válido' });
     }
 
-    //Cualquier otro error
+    // Error de correo duplicado
+    if (err.code === 11000) {
+        return res.status(400).json({ mensaje: 'Ya existe un usuario registrado con ese correo.' });
+    }
+
+    // Errores con statusCode explícito lanzados manualmente desde los controllers
+    if (err.statusCode) {
+        return res.status(err.statusCode).json({ mensaje: err.message });
+    }
+
+    // Cualquier otro error no controlado
     return res.status(500).json({ mensaje: err.message || 'Ha ocurrido un error inesperado' });
 };
 

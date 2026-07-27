@@ -28,7 +28,11 @@ const registrar = async (req, res, next) => {
         // Enviar el token en cookie y respuesta JSON
         res.cookie('tokenUsuario', tokenUsuario, { httpOnly: true })
             .status(201)
-            .json({ mensaje: 'Usuario creado correctamente', usuario: nuevoUsuario });
+            .json({
+                mensaje: 'Usuario creado correctamente',
+                usuario: nuevoUsuario,
+                token: tokenUsuario
+            });
     } catch (error) {
         next(error);
     }
@@ -72,7 +76,10 @@ const login = async (req, res, next) => {
         // Enviar token en cookie y respuesta exitosa
         res.cookie('tokenUsuario', tokenUsuario, { httpOnly: true })
             .status(200)
-            .json({ mensaje: 'Inicio de sesión exitoso' });
+            .json({
+                mensaje: 'Inicio de sesión exitoso',
+                token: tokenUsuario
+            });
     } catch (error) {
         next(error);
     }

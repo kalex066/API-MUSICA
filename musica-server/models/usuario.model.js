@@ -26,18 +26,11 @@ const UsuarioSchema = new Schema({
     }
 }, { timestamps: true });
 
-// Gancho (pre-save) corregido para usar 'contrasena'
-UsuarioSchema.pre('save', async function (next) {
+// Hook pre-save: encripta la contraseña solo si fue modificada
+UsuarioSchema.pre('save', async function () {
     if (this.isModified('contrasena')) {
-        try {
-            const salt = await bcrypt.genSalt(10);
-            this.contrasena = await bcrypt.hash(this.contrasena, salt);
-            next();
-        } catch (error) {
-            next(error);
-        }
-    } else {
-        next();
+        const salt = await bcrypt.genSalt(10);
+        this.contrasena = await bcrypt.hash(this.contrasena, salt);
     }
 });
 

@@ -1,6 +1,6 @@
+import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import cancionRouter from './routes/cancion.router.js';
@@ -9,8 +9,6 @@ import usuarioRouter from './routes/usuario.router.js';
 import autenticarJWT from './middlewares/jwt.config.js';
 import rutaNoEncontrada from './middlewares/rutaNoEncontrada.js';
 import manejadorErrores from './middlewares/manejadorErrores.js';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8080;
