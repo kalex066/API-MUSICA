@@ -1,15 +1,23 @@
-// controllers/usuario.controller.js
 import Usuario from '../models/usuario.model.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-const LLAVE_SECRETA = process.env.SECRET_KEY || 'clave_secreta_predeterminada';
+const LLAVE_SECRETA = process.env.SECRET_KEY || 'clave_predeterminada';
 
-// POST: Registrar un nuevo usuario y generar JWT que expira en 10 minutos
+// POST: Registrar un nuevo usuario
 const registrar = async (req, res, next) => {
     try {
-        const nuevoUsuario = await Usuario.create(req.body);
-        
+        const { nombre, apellido, correo, contrasena } = req.body;
+
+        // Validar que todos los campos han sido proporcionados
+        if (!nombre || !apellido || !correo || !contrasena) {
+            const error = new Error('Todos los campos son obligatorios: nombre, apellido, correo y contraseña');
+            error.statusCode = 400;
+            throw error;
+        }
+
+        const nuevoUsuario = await Usuario.create({ nombre, apellido, correo, contrasena });
+
         // Generar JWT con el correo y el id, expiración en 10 minutos
         const tokenUsuario = jwt.sign(
             { id: nuevoUsuario._id, correo: nuevoUsuario.correo },
@@ -17,7 +25,7 @@ const registrar = async (req, res, next) => {
             { expiresIn: '10m' }
         );
 
-        // Enviar el token en una cookie segura y respuesta JSON
+        // Enviar el token en cookie y respuesta JSON
         res.cookie('tokenUsuario', tokenUsuario, { httpOnly: true })
             .status(201)
             .json({ mensaje: 'Usuario creado correctamente', usuario: nuevoUsuario });
@@ -31,7 +39,7 @@ const login = async (req, res, next) => {
     try {
         const { correo, contrasena } = req.body;
 
-        // Validar que se proporcionaron los campos usando 'contrasena'
+        // Validar que se proporcionaron los campos
         if (!correo || !contrasena) {
             const error = new Error('El correo y la contraseña son obligatorios');
             error.statusCode = 400;
@@ -46,7 +54,7 @@ const login = async (req, res, next) => {
             throw error;
         }
 
-        // Validar que la contraseña coincida comparando contra 'usuario.contrasena'
+        // Validar que la contraseña coincida con la encriptada
         const esClaveCorrecta = await bcrypt.compare(contrasena, usuario.contrasena);
         if (!esClaveCorrecta) {
             const error = new Error('Contraseña incorrecta');

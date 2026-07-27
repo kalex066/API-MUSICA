@@ -1,4 +1,3 @@
-// routes/usuario.router.js
 import { Router } from 'express';
 import { registrar, login } from '../controllers/usuario.controller.js';
 
