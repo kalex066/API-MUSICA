@@ -7,9 +7,9 @@ import EditarCancion from './paginas/editarCancion';
 import Playlists from './paginas/listas';
 import PlaylistDetalle from './paginas/listaDetalle';
 import EditarPlaylist from './paginas/editarLista';
-import Registro from './componentes/Registro';
-import Login from './componentes/Login';
-import RutaProtegida from './componentes/RutaProtegida';
+import Registro from './componentes/registro';
+import Login from './componentes/login';
+import RutaProtegida from './componentes/rutaProtegida';
 
 const App = () => {
   return (
