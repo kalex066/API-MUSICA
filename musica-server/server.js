@@ -14,7 +14,10 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Middlewares globales base
-app.use(cors({ origins: ['http://localhost:5173', 'https://api-musica-iota.vercel.app/login'], credentials: true }));
+app.use(cors({
+    origin: ['http://localhost:5173', 'https://api-musica-iota.vercel.app'],
+    credentials: true
+}));
 app.use(express.json());
 app.use(cookieParser());
 
